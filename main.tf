@@ -1,7 +1,7 @@
 # Configure backend for state management
 terraform {
   backend "s3" {
-    bucket         = "terraform-state-bucket-XXXX"
+    bucket         = "u620"
     key            = "statefile.tfstate"
     dynamodb_table = "terraform-state-lock-table"
     encrypt        = true
