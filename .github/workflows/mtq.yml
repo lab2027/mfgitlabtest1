@@ -1,0 +1,28 @@
+name: poc8003636/mtq
+on:
+  push:
+  workflow_dispatch:
+concurrency:
+  group: "${{ github.ref }}"
+  cancel-in-progress: true
+env:
+  ROLE_ARN: arn:aws:iam::333026529024:role/glr
+  AWS_DEFAULT_REGION: us-west-2
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    container:
+      image: hashicorp/terraform:light
+      options: "--entrypoint "
+    if: github.ref == 'refs/heads/main'
+    timeout-minutes: 60
+    steps:
+    - uses: actions/checkout@v4.1.0
+      with:
+        fetch-depth: 20
+        lfs: true
+    - run: echo "${GITLAB_OIDC_TOKEN}" > /tmp/web_identity_token
+    - run: mkdir ~/.aws
+    - run: echo -e "[profile oidc]\nrole_arn=${ROLE_ARN}\nweb_identity_token_file=/tmp/web_identity_token" >> ~/.aws/config
+    - run: terraform init
+    - run: terraform apply -auto-approve
